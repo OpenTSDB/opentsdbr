@@ -1,0 +1,17 @@
+Package: opentsdb
+Maintainer: David Holstius <david.holstius@berkeley.edu>
+Author: David Holstius
+Version: 0.1
+License: BSD
+Title: OpenTSDB
+Description: Read-only interface to OpenTSDB
+Depends:
+    stringr,
+    httr
+Suggests:
+    testthat,
+    roxygen2
+Collate:
+    'opentsdb-package.r'
+    'timestamps.r'
+    'get.r'
