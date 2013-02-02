@@ -17,12 +17,14 @@
 
   \item{downsample}{character string}
 
+  \item{hostname}{character string}
+
   \item{port}{integer}
 
   \item{...}{further arguments}
 }
 \value{
-  a data.table
+  a data.frame
 }
 \description{
   Query a Time Series Daemon (TSD)

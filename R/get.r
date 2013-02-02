@@ -41,9 +41,10 @@ parse_content <- function(content, tags) {
 #' @param tags			character vector
 #' @param end			POSIXt or subclass
 #' @param downsample	character string
+#' @param hostname		character string
 #' @param port			integer
 #' @param ...			further arguments
-#' @return				a data.table
+#' @return				a data.frame
 #' @export
 tsd_get <- function(
 	metric,
@@ -55,7 +56,6 @@ tsd_get <- function(
 	port = 4242, 
 	...
 ) {	
-	require(data.table)
 	require(stringr)
 	require(httr)
 	url <- sprintf("http://%s:%d/q", hostname, port)

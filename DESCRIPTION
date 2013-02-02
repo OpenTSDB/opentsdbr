@@ -7,7 +7,8 @@ Title: OpenTSDB
 Description: Read-only interface to OpenTSDB
 Depends:
     stringr,
-    httr
+    httr,
+    lubridate
 Suggests:
     testthat,
     roxygen2
