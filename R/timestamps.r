@@ -1,6 +1,6 @@
-Timestamp <- function(x) {
+Timestamp <- function(x, tz="UTC", origin="1970-01-01 00:00:00", ...) {
 	if (is.numeric(x)) {
-		x <- as.POSIXct(x, tz="UTC", origin='1970-01-01 00:00:00')
+		x <- as.POSIXct(x, tz=tz, origin=origin)
 	} else if (inherits(x, "POSIXt")) {
 		x <- as.POSIXct(x)
 	}
