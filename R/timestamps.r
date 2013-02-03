@@ -6,14 +6,24 @@
 #' @param	origin	character string (see \link{as.POSIXct})
 #' @param	...		further arguments for, e.g., strptime() 
 #' @export
-Timestamp <- function(x, tz="UTC", origin="1970-01-01 00:00:00", ...) {
+Timestamp <- function(x, tz, origin="1970-01-01 00:00:00", ...) {
 	if (is.numeric(x)) {
-		x <- as.POSIXct(x, tz=tz, origin=origin)
-	} else if (inherits(x, "POSIXt")) {
-		x <- as.POSIXct(x)
+		if (missing(tz)) {
+			tz <- "UTC"
+			#warning("No timezone given. Defaulting to ", tz)
+		}
+		timestamp <- as.POSIXct(x, tz=tz, origin=origin)
+	} else if (is.character(x)) {
+		if (missing(tz)) {
+			tz <- Sys.timezone()
+			warning("No timezone given. Defaulting to ", tz)
+		}
+		timestamp <- as.POSIXct(x, tz=tz, origin=origin)
+	} else {
+		timestamp <- as.POSIXct(x)
 	}
-	class(x) <- c('Timestamp', class(x))
-	return(x)
+	class(timestamp) <- c('Timestamp', class(timestamp))
+	return(timestamp)
 }
 
 format_iso8601 <- function(x, tz="", ...) {
