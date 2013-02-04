@@ -5,24 +5,23 @@ deserialize_tags <- function(tag_strings, tag_keys) {
     as.data.frame(tag_matrix)
 }
 
-deserialize_metrics <- function(metric_matrix) {
+deserialize_metrics <- function(records) {
     require(lubridate)
     with_utc <- data.frame(
-        metric = metric_matrix[,1],
-        timestamp = Timestamp(as.numeric(metric_matrix[,2])),
-        value = as.numeric(metric_matrix[,3])
+        metric = records[,1],
+        timestamp = Timestamp(as.numeric(records[,2])),
+        value = as.numeric(records[,3])
     )
     transform(with_utc, timestamp=with_tz(timestamp, Sys.timezone()))
 }
 
 deserialize_records <- function(records, tag_keys) {
     require(stringr)
-    parts <- str_split_fixed(records, " ", n=4)
-    metric_data <- deserialize_metrics(parts[,1:3])
+    metric_data <- deserialize_metrics(records[,1:3])
     if (missing(tag_keys)) {
         return(metric_data)
     } else {
-        tag_data <- deserialize_tags(parts[,4], tag_keys)
+        tag_data <- deserialize_tags(records[,4], tag_keys)
         return(cbind(metric_data, tag_data))
     }
 }
@@ -30,6 +29,7 @@ deserialize_records <- function(records, tag_keys) {
 deserialize_content <- function(content, tags) {
     require(stringr)
     cleaned <- str_trim(content)
-    records <- readLines(textConnection(cleaned))
+    lines <- readLines(textConnection(cleaned))
+    records <- str_split_fixed(lines, " ", n=4)
     deserialize_records(records, tag_keys=tags)
 }
