@@ -3,20 +3,29 @@ opentsdbr
 
 This package provides a read-only interface from [R] to [OpenTSDB]. We're using it internally for data analysis on the [BEACON] project at UC Berkeley. It's not optimized, and only uses HTTP, but could serve as a reference implementation (or straw man) for a faster and/or more fully featured API.
 
-Seeking comment.
+Seeking comment!
+
+Install directly from GitHub using devtools:
+
+    R> if (!require("devtools")) install.packages("devtools")
+    R> library("devtools")
+    R> install_github("opentsdbr", "holstius")
 
 Example usage:
 
     R> library(opentsdbr)
     R> metric <- "SHT15_temp_Celsius"
     R> start <- ISOdate(2013, 02, 02, 00, tz="America/Los_Angeles")
-    R> tags <- c(arduino = "*")
+    R> tags <- c(site = "*")
+    
+    R> # Hit the TSD (defaults to localhost:4242)
     R> result <- tsd_get(metric, start, tags, downsample="10m-avg")
     url: http://localhost:4242/q?start=2013/02/02-00:00:00&m=avg:10m-avg:SHT15_temp_Celsius{arduino=*}&ascii=
     
+    R> # Return value is a data.frame; data.table shows head and tail
     R> library(data.table)
     R> data.table(result)
-                     metric           timestamp    value    arduino
+                     metric           timestamp    value       site
       1: SHT15_temp_Celsius 2013-02-02 00:05:35 26.50858 UHall575AB
       2: SHT15_temp_Celsius 2013-02-02 00:15:37 26.50114 UHall575AB
       3: SHT15_temp_Celsius 2013-02-02 00:25:41 26.78675 UHall575AB
@@ -29,9 +38,13 @@ Example usage:
     243: SHT15_temp_Celsius 2013-02-03 16:37:41 30.87239 UHall575AB
     244: SHT15_temp_Celsius 2013-02-03 16:45:27 31.01333 UHall575AB
     
+    R> # Convert to irregular time series
     R> library(zoo)
-    R> SHT15_temp_Celsius <- with(result, zoo(value, timestamp))
-    R> plot(SHT15_temp_Celsius)
+    R> z <- with(result, zoo(value, timestamp))
+    
+    # Filter and plot
+    R> filtered <- rollapply(z, width=7, FUN=median)
+    R> plot(merge(z, filtered))
 
 [R]: http://r-project.org "R"
 [OpenTSDB]: http://www.opentsdb.net "OpenTSDB"
