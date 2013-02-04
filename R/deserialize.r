@@ -24,7 +24,6 @@ deserialize_records <- function(records, tags) {
     } else {
         tag_strings <- apply(records[,-(1:3)], 1, str_c, collapse=" ")
         tag_data <- deserialize_tags(tag_strings, tags)
-        message(tag_strings)
         return(cbind(metric_data, tag_data))
     }
 }
