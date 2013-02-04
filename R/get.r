@@ -36,14 +36,16 @@ parse_content <- function(content, tags) {
 
 #' Query a Time Series Daemon (TSD)
 #'
-#' @param metric		character string
-#' @param start			POSIXt or subclass
-#' @param tags			character vector
-#' @param end			POSIXt or subclass
-#' @param downsample	character string
-#' @param hostname		character string
-#' @param port			integer
-#' @param ...			further arguments
+#' @param	metric		character string
+#' @param	start		POSIXt or subclass
+#' @param	tags		character vector
+#' @param	end			POSIXt or subclass
+#' @param	agg			character string ("sum" or "avg")
+#' @param	rate		logical
+#' @param	downsample	character string
+#' @param	hostname	character string
+#' @param	port		integer
+#' @param	...			further arguments
 #' @return				a data.frame
 #' @export
 tsd_get <- function(
@@ -51,7 +53,9 @@ tsd_get <- function(
 	start,
 	tags,
 	end = Timestamp(now()),
-	downsample = "1m-avg",
+	agg = "avg",
+	rate = FALSE,
+	downsample = NULL,
 	hostname = 'localhost', 
 	port = 4242, 
 	...
@@ -59,25 +63,23 @@ tsd_get <- function(
 	require(stringr)
 	require(httr)
 	url <- sprintf("http://%s:%d/q", hostname, port)
-	m <- str_c("avg", ":", metric)
-	if (!missing(downsample))
-		m <- str_c(m, downsample, ":")
+	m_parts <- list(agg)
+	if (!is.null(downsample))
+		m_parts <- c(m_parts, downsample)
+	if (rate)
+		m_parts <- c(m_parts, "rate")
+	m_parts <- c(m_parts, metric)
+	m <- paste(m_parts, collapse=":")
 	if (!missing(tags)) {
-		mt <- cbind(names(tags), tags)
-		str_c(apply(mt, 1, str_c, collapse="="), collapse=" ")
 		m <- str_c(m, "{", str_c(apply(cbind(names(tags), tags), 1, str_c, collapse="="), collapse=" "), "}")
 	}
-	query <- list(m=m, ascii="")
-	if (!is.character(start)) 
-		start <- Timestamp(start)
-	query <- c(query, start=format_tsdb(start, usetz=FALSE))
+	query <- list(start=format_tsdb(Timestamp(start)), m=m)
 	if (!missing(end)) {
-		if (!is.character(end)) 
-			end <- Timestamp(end)
-		query <- c(query, end=format_tsdb(end, usetz=FALSE))
+		query <- c(query, end=format_tsdb(Timestamp(end)))
 	}
+	query <- c(query, ascii="")
 	response <- GET(url, query=query)
-	message("url: ", response$url)
+	message("url: ", URLdecode(response$url))
 	stopifnot(response$status_code == '200')
 	txt <- content(response, as="text")
 	df <- parse_content(txt, tags=tags)
