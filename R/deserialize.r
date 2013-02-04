@@ -21,15 +21,17 @@ deserialize_records <- function(records, tag_keys) {
     if (missing(tag_keys)) {
         return(metric_data)
     } else {
-        tag_data <- deserialize_tags(records[,4], tag_keys)
+        tag_strings <- apply(records[,-(1:3)], 1, str_c, collapse=" ")
+        tag_data <- deserialize_tags(tag_strings, tag_keys)
         return(cbind(metric_data, tag_data))
     }
 }
 
 deserialize_content <- function(content, tags) {
     require(stringr)
-    cleaned <- str_trim(content)
-    lines <- readLines(textConnection(cleaned))
-    records <- str_split_fixed(lines, " ", n=4)
+    # cleaned <- str_trim(content)
+    # lines <- readLines(textConnection(cleaned))
+    # records <- str_split_fixed(lines, " ", n=4)
+    records <- read.table(textConnection(content))
     deserialize_records(records, tag_keys=tags)
 }
