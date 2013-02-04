@@ -7,24 +7,24 @@ Seeking comment!
 
 Install directly from GitHub using devtools:
 
-    R> if (!require("devtools")) install.packages("devtools")
-    R> library("devtools")
-    R> install_github("opentsdbr", "holstius")
+    if (!require("devtools")) install.packages("devtools")
+    library("devtools")
+    install_github("opentsdbr", "holstius")
 
 Example usage:
 
-    R> library(opentsdbr)
-    R> metric <- "SHT15_temp_Celsius"
-    R> start <- ISOdate(2013, 02, 02, 00, tz="America/Los_Angeles")
-    R> tags <- c(site = "*")
+    library(opentsdbr)
+    metric <- "SHT15_temp_Celsius"
+    start <- ISOdate(2013, 02, 02, 00, tz="America/Los_Angeles")
+    tags <- c(site = "*")
     
-    R> # Hit the TSD (defaults to localhost:4242)
-    R> result <- tsd_get(metric, start, tags, downsample="10m-avg")
+    # Hit the TSD (defaults to localhost:4242)
+    result <- tsd_get(metric, start, tags, downsample="10m-avg")
     url: http://localhost:4242/q?start=2013/02/02-00:00:00&m=avg:10m-avg:SHT15_temp_Celsius{arduino=*}&ascii=
     
-    R> # Return value is a data.frame; data.table shows head and tail
-    R> library(data.table)
-    R> data.table(result)
+    # Return value is a data.frame; data.table shows head and tail
+    library(data.table)
+    data.table(result)
                      metric           timestamp    value       site
       1: SHT15_temp_Celsius 2013-02-02 00:05:35 26.50858 UHall575AB
       2: SHT15_temp_Celsius 2013-02-02 00:15:37 26.50114 UHall575AB
@@ -38,13 +38,13 @@ Example usage:
     243: SHT15_temp_Celsius 2013-02-03 16:37:41 30.87239 UHall575AB
     244: SHT15_temp_Celsius 2013-02-03 16:45:27 31.01333 UHall575AB
     
-    R> # Convert to irregular time series
-    R> library(zoo)
-    R> z <- with(result, zoo(value, timestamp))
+    # Convert to irregular time series
+    library(zoo)
+    z <- with(result, zoo(value, timestamp))
     
     # Filter and plot
-    R> filtered <- rollapply(z, width=7, FUN=median)
-    R> plot(merge(z, filtered))
+    filtered <- rollapply(z, width=7, FUN=median)
+    plot(merge(z, filtered))
 
 [R]: http://r-project.org "R"
 [OpenTSDB]: http://www.opentsdb.net "OpenTSDB"
