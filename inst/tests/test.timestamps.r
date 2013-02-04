@@ -5,7 +5,7 @@ Sys.setenv(TZ=local_tz)
 
 from_epoch <- as.POSIXct(1359762161, tz="UTC", origin="1970-01-01")
 from_isodate <- ISOdate(2013, 02, 01, 15, 42, 41, tz=local_tz)
-from_strptime <- as.POSIXct(strptime("2013-02-01 15:42:41", format_naive, tz=local_tz))
+from_strptime <- as.POSIXct(strptime("2013-02-01 15:42:41", "%Y-%m-%d %H:%M:%S", tz=local_tz))
 
 z <- 1359762161
 

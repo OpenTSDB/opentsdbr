@@ -21,7 +21,7 @@ test_that("parse example content returned by TSD", {
     parsed <- parse_content(content, tags=tags)
     expect_true(is.data.frame(parsed))
     expect_equal(names(parsed)[1:3], c("metric", "timestamp", "value"))
-    expect_equal(names(parsed)[4:ncol(dat)], tags)
+    expect_equal(names(parsed)[4:ncol(parsed)], tags)
     expect_true(is(parsed$timestamp, "POSIXct"))
     expect_equal(attr(parsed$timestamp, "tzone"), Sys.timezone())
     expect_equal(as.numeric(parsed$timestamp), c(1288900000, 1288900001))

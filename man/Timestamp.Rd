@@ -1,6 +1,6 @@
 \name{Timestamp}
 \alias{Timestamp}
-\title{Timestamps with suitable default formatting and timezone specs}
+\title{Timestamps with suitable default formatting and timezone handling}
 \usage{
   Timestamp(x, tz, origin = "1970-01-01 00:00:00", ...)
 }
@@ -17,7 +17,7 @@
 }
 \description{
   Timestamps with suitable default formatting and timezone
-  specs
+  handling
 }
 \note{
   tz="" is equivalent to tz=Sys.timezone()

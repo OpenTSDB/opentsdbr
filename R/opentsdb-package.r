@@ -1,5 +1,5 @@
-#' opentsdb
+#' opentsdbr
 #' 
-#' @name opentsdb
+#' @name opentsdbr
 #' @docType package
 NULL

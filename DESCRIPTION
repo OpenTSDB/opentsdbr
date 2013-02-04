@@ -1,4 +1,4 @@
-Package: opentsdb
+Package: opentsdbr
 Maintainer: David Holstius <david.holstius@berkeley.edu>
 Author: David Holstius
 Version: 0.1
@@ -13,6 +13,6 @@ Suggests:
     testthat,
     roxygen2
 Collate:
-    'opentsdb-package.r'
     'timestamps.r'
     'get.r'
+    'opentsdb-package.r'

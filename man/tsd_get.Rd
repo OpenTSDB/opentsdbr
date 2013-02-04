@@ -3,8 +3,8 @@
 \title{Query a Time Series Daemon (TSD)}
 \usage{
   tsd_get(metric, start, tags, end = Timestamp(now()),
-    downsample = "1m-avg", hostname = "localhost",
-    port = 4242, ...)
+    agg = "avg", rate = FALSE, downsample = NULL,
+    hostname = "localhost", port = 4242, ...)
 }
 \arguments{
   \item{metric}{character string}
@@ -14,6 +14,10 @@
   \item{tags}{character vector}
 
   \item{end}{POSIXt or subclass}
+
+  \item{agg}{character string ("sum" or "avg")}
+
+  \item{rate}{logical}
 
   \item{downsample}{character string}
 
