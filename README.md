@@ -30,7 +30,7 @@ Example usage:
     244: SHT15_temp_Celsius 2013-02-03 16:45:27 31.01333 UHall575AB
     
     R> library(zoo)
-    R> SHT15_temp_Celsius <- zoo(result$value, order.by=result$timestamp)
+    R> SHT15_temp_Celsius <- with(result, zoo(value, timestamp))
     R> plot(SHT15_temp_Celsius)
 
 [R]: http://r-project.org "R"
