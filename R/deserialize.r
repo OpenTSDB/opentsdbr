@@ -30,6 +30,6 @@ deserialize_records <- function(records, tag_keys) {
 deserialize_content <- function(content, tags) {
     require(stringr)
     cleaned <- str_trim(content)
-    records <- unlist(str_split(cleaned, "\n"))
+    records <- readLines(textConnection(cleaned))
     deserialize_records(records, tag_keys=tags)
 }
