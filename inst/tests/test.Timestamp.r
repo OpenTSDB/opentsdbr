@@ -1,4 +1,4 @@
-context('timestamps')
+context('Timestamp')
 
 local_tz <- "America/Los_Angeles"
 Sys.setenv(TZ=local_tz)

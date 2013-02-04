@@ -13,6 +13,7 @@ Suggests:
     testthat,
     roxygen2
 Collate:
-    'timestamps.r'
-    'get.r'
     'opentsdb-package.r'
+    'deserialize.r'
+    'timestamps.r'
+    'tsd_get.r'

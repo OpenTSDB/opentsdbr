@@ -19,8 +19,8 @@ Example usage:
     tags <- c(site = "*")
     
     # Hit the TSD (defaults to localhost:4242)
+    # Optional: pass verbose=TRUE to see url and timings
     result <- tsd_get(metric, start, tags, downsample="10m-avg")
-    url: http://localhost:4242/q?start=2013/02/02-00:00:00&m=avg:10m-avg:SHT15_temp_Celsius{arduino=*}&ascii=
     
     # Return value is a data.frame; data.table shows head and tail
     library(data.table)

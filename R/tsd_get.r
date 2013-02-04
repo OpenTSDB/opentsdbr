@@ -6,9 +6,10 @@
 #' @param   end         POSIXt or subclass
 #' @param   agg         character string ("sum" or "avg")
 #' @param   rate        logical
-#' @param   downsample  character string
+#' @param   downsample  character string (ex: "1h-avg")
 #' @param   hostname    character string
 #' @param   port        integer
+#' @param   verbose     logical
 #' @param   ...         further arguments
 #' @return              a data.frame
 #' @export
@@ -22,6 +23,7 @@ tsd_get <- function(
     downsample = NULL,
     hostname = 'localhost', 
     port = 4242, 
+    verbose = FALSE,
     ...
 ) { 
     require(stringr)
@@ -42,11 +44,14 @@ tsd_get <- function(
         query <- c(query, end=format_tsdb(Timestamp(end)))
     }
     query <- c(query, ascii="")
-    response <- GET(url, query=query)
-    message("url: ", URLdecode(response$url))
+    time_to_query <- system.time(response <- GET(url, query=query))[3]
+    if (verbose) message(format(time_to_query, digits=3), "s to fetch ", URLdecode(response$url))
     stopifnot(response$status_code == '200')
-    txt <- content(response, as="text")
-    df <- parse_content(txt, tags=tags)
-    df <- subset(df, timestamp >= start & timestamp <= end) # trim excess
-    return(df)
+    time_to_deserialize <- system.time({
+        txt <- content(response, as="text")
+        deserialized <- deserialize_content(txt, tags=tags)
+        windowed <- subset(deserialized, timestamp >= start & timestamp <= end) # trim excess
+    })[3]
+    if (verbose) message(format(time_to_deserialize, digits=3), "s to deserialize ", nrow(windowed), " datapoints")
+    return(windowed)
 }

@@ -4,7 +4,8 @@
 \usage{
   tsd_get(metric, start, tags, end = Timestamp(now()),
     agg = "avg", rate = FALSE, downsample = NULL,
-    hostname = "localhost", port = 4242, ...)
+    hostname = "localhost", port = 4242, verbose = TRUE,
+    ...)
 }
 \arguments{
   \item{metric}{character string}
@@ -19,11 +20,13 @@
 
   \item{rate}{logical}
 
-  \item{downsample}{character string}
+  \item{downsample}{character string (ex: "1h-avg")}
 
   \item{hostname}{character string}
 
   \item{port}{integer}
+
+  \item{verbose}{logical}
 
   \item{...}{further arguments}
 }
