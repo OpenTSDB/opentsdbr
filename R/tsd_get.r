@@ -17,7 +17,7 @@ tsd_get <- function(
     metric,
     start,
     tags,
-    end = Timestamp(now()),
+    end,
     agg = "avg",
     rate = FALSE,
     downsample = NULL,
@@ -37,7 +37,7 @@ tsd_get <- function(
     m_parts <- c(m_parts, metric)
     m <- paste(m_parts, collapse=":")
     if (!missing(tags)) {
-        m <- str_c(m, "{", str_c(apply(cbind(names(tags), tags), 1, str_c, collapse="="), collapse=" "), "}")
+        m <- str_c(m, "{", str_c(apply(cbind(names(tags), tags), 1, str_c, collapse="="), collapse=","), "}")
     }
     query <- list(start=format_tsdb(Timestamp(start)), m=m)
     if (!missing(end)) {
