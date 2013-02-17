@@ -17,7 +17,7 @@ tsd_get <- function(
     metric,
     start,
     tags,
-    end,
+    end="",
     agg = "avg",
     rate = FALSE,
     downsample = NULL,
@@ -50,7 +50,8 @@ tsd_get <- function(
     time_to_deserialize <- system.time({
         txt <- content(response, as="text")
         deserialized <- deserialize_content(txt, tags=tags)
-        windowed <- subset(deserialized, timestamp >= start & timestamp <= end) # trim excess
+       # windowed <- subset(deserialized, timestamp >= start & timestamp <= end) # trim excess
+        windowed <- deserialized
     })[3]
     if (verbose) message(format(time_to_deserialize, digits=3), "s to deserialize ", nrow(windowed), " datapoints")
     return(windowed)
