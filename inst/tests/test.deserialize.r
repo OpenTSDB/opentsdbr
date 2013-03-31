@@ -1,16 +1,5 @@
 context("deserialize")
 
-test_that("deserialize tags from string (ex: foo=bar baz=bap)", {
-    tags <- c(serial="*", host="*", site="*")
-    tag_strings <- c(
-        "host=foo serial=bar site=bap",
-        "host=foo serial=bar site=baz"
-        )
-    actual <- deserialize_tags(tag_strings, tags)
-    expected <- data.frame(serial=c("bar", "bar"), host=c("foo", "foo"), site=c("bap", "baz"))
-    expect_equal(actual, expected)
-})
-
 content <- "
 myservice.latency.avg 1288900000 42 reqtype=foo host=baz
 myservice.latency.avg 1288900001 51 reqtype=bar host=bap
@@ -18,7 +7,7 @@ myservice.latency.avg 1288900001 51 reqtype=bar host=bap
 
 test_that("deserialize ASCII content as returned by TSD", {
     tags <- c(reqtype="*", host="*")
-    parsed <- deserialize_content(content, tags=tags)
+    parsed <- parse_ascii(content)
     expect_true(is.data.frame(parsed))
     expect_equal(names(parsed)[1:3], c("metric", "timestamp", "value"))
     expect_equal(names(parsed)[4:ncol(parsed)], names(tags))
