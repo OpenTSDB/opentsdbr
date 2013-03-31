@@ -2,22 +2,72 @@
 #'
 #' @param   metric      character string
 #' @param   start       POSIXt or subclass
-#' @param   tags        character vector
 #' @param   end         POSIXt or subclass
+#' @param   tags        character vector
 #' @param   agg         character string ("sum" or "avg")
 #' @param   rate        logical
-#' @param   downsample  character string (ex: "1h-avg")
+#' @param   downsample  character string (example: "1h-avg")
 #' @param   hostname    character string
 #' @param   port        integer
 #' @param   verbose     logical
+#' @param   trim        logical
 #' @param   ...         further arguments
 #' @return              a data.frame
 #' @export
 tsd_get <- function(
     metric,
     start,
-    tags,
     end,
+    tags,
+    agg = "avg",
+    rate = FALSE,
+    downsample = NULL,
+    hostname = 'localhost', 
+    port = 4242, 
+    verbose = FALSE,
+    trim = FALSE,
+    ...
+) { 
+    require(data.table)
+    txt <- tsd_get_ascii(metric, start, end, tags, agg, rate, downsample, hostname, port, verbose)
+    # Write to temporary file, then read back (workaround for bug in fread())
+    tempfn <- tempfile()
+    cat(txt, file=tempfn)
+    data <- parse_ascii(tempfn, verbose=verbose)
+    file.remove(tempfn)
+    if (trim) {
+        data <- subset(data, timestamp >= start) # trim excess returned by OpenTSDB
+        if (!missing(end)) 
+            data <- subset(data, timestamp <= end)
+    }
+    return(data)
+}
+
+parse_ascii <- function(content, verbose=FALSE) {
+    require(lubridate)
+    require(stringr)
+    require(data.table)
+    records <- fread(content, sep=" ")
+    tag_hint <- as.character(records[1, -(1:3), with=FALSE])
+    tag_names <- str_replace(tag_hint, "=.*", "")
+    setnames(records, c("metric", "timestamp", "value", tag_names))
+    records <- as.data.frame(records)
+    records <- transform(records,
+        timestamp = with_tz(Timestamp(as.numeric(timestamp)), Sys.timezone()),
+        value = as.numeric(value)
+    )
+    extract_tag_value <- function(x) str_extract(x, "([^=]+)$")
+    tag_data <- lapply(records[,tag_names], extract_tag_value)
+    records[,tag_names] <- tag_data
+    records <- data.table(records, key=c("timestamp", "metric", tag_names))
+    return(records)
+}
+
+tsd_get_ascii <- function(
+    metric,
+    start,
+    end,
+    tags,
     agg = "avg",
     rate = FALSE,
     downsample = NULL,
@@ -26,9 +76,34 @@ tsd_get <- function(
     verbose = FALSE,
     ...
 ) { 
-    require(stringr)
     require(httr)
-    url <- sprintf("http://%s:%d/q", hostname, port)
+    params <- tsd_query_params(metric, start, end, tags, agg, rate, downsample)
+    url <- sprintf("http://%s:%s/q", hostname, port)
+    elapsed <- system.time(response <- GET(url, query=params))[3]
+    if (verbose) {
+        message(format(elapsed, digits=3), "s to fetch ", URLdecode(response$url))
+    }
+    if (response$status_code != '200') {
+        warning("Response code ", response$status_code)
+        message("URL: ", response$url)
+        stop()
+    }
+    txt <- content(response, as="text")
+    attr(txt, "url") <- response$url
+    return(txt)
+}
+
+tsd_query_params <- function(
+    metric,
+    start,
+    end,
+    tags,
+    agg = "avg",
+    rate = FALSE,
+    downsample = NULL,
+    ...
+) {
+    require(stringr)
     m_parts <- list(agg)
     if (!is.null(downsample))
         m_parts <- c(m_parts, downsample)
@@ -39,19 +114,10 @@ tsd_get <- function(
     if (!missing(tags)) {
         m <- str_c(m, "{", str_c(apply(cbind(names(tags), tags), 1, str_c, collapse="="), collapse=","), "}")
     }
-    query <- list(start=format_tsdb(Timestamp(start)), m=m)
+    params <- list(start=format_tsdb(Timestamp(start)), m=m)
     if (!missing(end)) {
-        query <- c(query, end=format_tsdb(Timestamp(end)))
+        params <- c(params, end=format_tsdb(Timestamp(end)))
     }
-    query <- c(query, ascii="")
-    time_to_query <- system.time(response <- GET(url, query=query))[3]
-    if (verbose) message(format(time_to_query, digits=3), "s to fetch ", URLdecode(response$url))
-    stopifnot(response$status_code == '200')
-    time_to_deserialize <- system.time({
-        txt <- content(response, as="text")
-        deserialized <- deserialize_content(txt, tags=tags)
-        windowed <- subset(deserialized, timestamp >= start & timestamp <= end) # trim excess
-    })[3]
-    if (verbose) message(format(time_to_deserialize, digits=3), "s to deserialize ", nrow(windowed), " datapoints")
-    return(windowed)
+    params <- c(params, ascii="")
+    return(params)
 }
