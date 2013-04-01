@@ -14,17 +14,13 @@ Install directly from GitHub using devtools:
 Example usage:
 
     library(opentsdbr)
+    
     metric <- "SHT15_temp_Celsius"
     start <- ISOdate(2013, 02, 02, 00, tz="America/Los_Angeles")
-    tags <- c(site = "*")
     
-    # Hit the TSD (defaults to localhost:4242)
+    # Query the TSD (defaults to localhost:4242)
     # Optional: pass verbose=TRUE to see url and timings
-    result <- tsd_get(metric, start, tags, downsample="10m-avg")
-    
-    # Return value is a data.frame; data.table shows head and tail
-    library(data.table)
-    data.table(result)
+    (result <- tsd_get(metric, start, tags=c(site="*"), downsample="10m-avg"))
                      metric           timestamp    value       site
       1: SHT15_temp_Celsius 2013-02-02 00:05:35 26.50858 UHall575AB
       2: SHT15_temp_Celsius 2013-02-02 00:15:37 26.50114 UHall575AB
@@ -38,11 +34,9 @@ Example usage:
     243: SHT15_temp_Celsius 2013-02-03 16:37:41 30.87239 UHall575AB
     244: SHT15_temp_Celsius 2013-02-03 16:45:27 31.01333 UHall575AB
     
-    # Convert to irregular time series
+    # Convert to irregular time series, filter, and plot
     library(zoo)
     z <- with(result, zoo(value, timestamp))
-    
-    # Filter and plot
     filtered <- rollapply(z, width=7, FUN=median)
     plot(merge(z, filtered))
 
