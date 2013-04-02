@@ -53,7 +53,7 @@ parse_ascii <- function(content, verbose=FALSE) {
     setnames(records, c("metric", "timestamp", "value", tag_names))
     records <- as.data.frame(records)
     records <- transform(records,
-        timestamp = with_tz(Timestamp(as.numeric(timestamp)), Sys.timezone()),
+        timestamp = Timestamp(as.numeric(timestamp)),
         value = as.numeric(value)
     )
     extract_tag_value <- function(x) str_extract(x, "([^=]+)$")
