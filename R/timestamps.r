@@ -15,11 +15,7 @@ Timestamp <- function(x, tz, origin="1970-01-01 00:00:00", ...) {
         }
         timestamp <- as.POSIXct(x, tz=tz, origin=origin)
     } else if (is.character(x)) {
-        if (missing(tz)) {
-            tz <- Sys.timezone()
-            warning("No timezone given. Defaulting to ", tz)
-        }
-        timestamp <- as.POSIXct(x, tz=tz, origin=origin)
+        timestamp <- as.POSIXct(x, origin=origin)
     } else {
         timestamp <- as.POSIXct(x)
     }
