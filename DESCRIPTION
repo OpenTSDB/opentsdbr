@@ -8,11 +8,15 @@ Description: Read-only interface to OpenTSDB
 Depends:
     stringr,
     httr,
-    lubridate
+    lubridate,
+    data.table (>= 1.8.7)
 Suggests:
     testthat,
     roxygen2
 Collate:
     'opentsdb-package.r'
+    'S3-classes.r'
     'timestamps.r'
     'tsd_get.r'
+    'aggregate.r'
+    'trunc.r'

@@ -40,27 +40,27 @@ tsd_get <- function(
         if (!missing(end)) 
             data <- subset(data, timestamp <= end)
     }
-    return(data)
+    return(as.tsdb(data))
 }
 
 parse_ascii <- function(content, verbose=FALSE) {
     require(lubridate)
     require(stringr)
     require(data.table)
-    records <- fread(content, sep=" ")
+    records <- data.table::fread(content, sep=" ")
     tag_hint <- as.character(records[1, -(1:3), with=FALSE])
     tag_names <- str_replace(tag_hint, "=.*", "")
     setnames(records, c("metric", "timestamp", "value", tag_names))
     records <- as.data.frame(records)
     records <- transform(records,
-        timestamp = Timestamp(as.numeric(timestamp)),
+        timestamp = Timestamp(as.numeric(timestamp), tz="UTC"),
         value = as.numeric(value)
     )
     extract_tag_value <- function(x) str_extract(x, "([^=]+)$")
     tag_data <- lapply(records[,tag_names], extract_tag_value)
     records[,tag_names] <- tag_data
     records <- data.table(records, key=c("timestamp", "metric", tag_names))
-    return(records)
+    return(as.tsdb(records))
 }
 
 tsd_get_ascii <- function(
@@ -85,7 +85,7 @@ tsd_get_ascii <- function(
     }
     if (response$status_code != '200') {
         warning("Response code ", response$status_code)
-        message("URL: ", response$url)
+        warning("URL: ", response$url)
         stop()
     }
     txt <- content(response, as="text")

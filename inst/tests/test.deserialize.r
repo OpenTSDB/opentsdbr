@@ -12,7 +12,7 @@ test_that("deserialize ASCII content as returned by TSD", {
     expect_equal(names(parsed)[1:3], c("metric", "timestamp", "value"))
     expect_equal(names(parsed)[4:ncol(parsed)], names(tags))
     expect_true(is(parsed$timestamp, "POSIXct"))
-    expect_equal(attr(parsed$timestamp, "tzone"), Sys.timezone())
+    expect_equal(attr(parsed$timestamp, "tzone"), "UTC")
     expect_equal(as.numeric(parsed$timestamp), c(1288900000, 1288900001))
     expect_equal(parsed$value, c(42, 51))
     expect_equal(as.character(parsed$reqtype), c("foo", "bar"))

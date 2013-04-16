@@ -7,15 +7,21 @@
 #' @param   origin  character string (see \link{as.POSIXct})
 #' @param   ...     further arguments to be passed to or from other methods (example: format) 
 #' @export
-Timestamp <- function(x, tz="", origin="1970-01-01 00:00:00", ...) {
+Timestamp <- function(x, tz, origin="1970-01-01 00:00:00", ...) {
     if (is.numeric(x)) {
         if (missing(tz)) {
-            tz <- "UTC"
-            #warning("No timezone given. Defaulting to ", tz)
+            tz = "UTC"
+            warning('No timezone given. Defaulting to UTC')
         }
         timestamp <- as.POSIXct(x, tz=tz, origin=origin)
     } else if (is.character(x)) {
-        timestamp <- as.POSIXct(x, tz=tz, origin=origin)
+        if (missing(tz)) {
+            tz = ""
+            warning('No timezone given. Defaulting to ""')
+        }
+        timestamp <- as.POSIXct(x, format="%Y-%m-%dT%H:%M:%S%z", tz=tz)
+    } else if (inherits(x, "POSIXt")) {
+        timestamp <- x
     } else {
         timestamp <- as.POSIXct(x, tz=tz)
     }
