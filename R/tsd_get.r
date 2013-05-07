@@ -33,7 +33,7 @@ tsd_get <- function(
     # Write to temporary file, then read back (workaround for bug in fread())
     tempfn <- tempfile()
     cat(txt, file=tempfn)
-    data <- parse_ascii(tempfn, verbose=verbose)
+    data <- read.tsdb(tempfn, verbose=verbose)
     file.remove(tempfn)
     if (trim) {
         data <- subset(data, timestamp >= start) # trim excess returned by OpenTSDB
@@ -43,11 +43,19 @@ tsd_get <- function(
     return(as.tsdb(data))
 }
 
-parse_ascii <- function(content, verbose=FALSE) {
+#' read.tsdb
+#' 
+#' Reads a file in OpenTSDB ASCII format. The returned object inherits from data.table.
+#'
+#' @param file      file (must be compatible with data.table::fread)
+#' @param verbose   logical
+#'
+#' @export
+read.tsdb <- function(file, with_tz="UTC", verbose=FALSE) {
     require(lubridate)
     require(stringr)
     require(data.table)
-    records <- data.table::fread(content, sep=" ")
+    records <- data.table::fread(file, sep=" ")
     tag_hint <- as.character(records[1, -(1:3), with=FALSE])
     tag_names <- str_replace(tag_hint, "=.*", "")
     setnames(records, c("metric", "timestamp", "value", tag_names))
@@ -56,6 +64,11 @@ parse_ascii <- function(content, verbose=FALSE) {
         timestamp = Timestamp(as.numeric(timestamp), tz="UTC"),
         value = as.numeric(value)
     )
+    if (with_tz != "UTC") {
+        records <- transform(records,
+            timestamp = lubridate::with_tz(timestamp, with_tz)
+        ) 
+    }
     extract_tag_value <- function(x) str_extract(x, "([^=]+)$")
     tag_data <- lapply(records[,tag_names], extract_tag_value)
     records[,tag_names] <- tag_data
