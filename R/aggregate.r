@@ -17,7 +17,6 @@
 #' co2 <- as.tsdb(data.frame(timestamp=x, value=as.numeric(co2)))
 #' aggregate(co2, seconds=60 * 60 * 24 * 365 * 5)
 #' }
-#' @export
 aggregate.tsdb <- function(
 	x, 
 	by = list(), 
