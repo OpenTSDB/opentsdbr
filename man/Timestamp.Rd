@@ -2,8 +2,7 @@
 \alias{Timestamp}
 \title{Timestamps with suitable default formatting and timezone handling}
 \usage{
-  Timestamp(x, tz = "", origin = "1970-01-01 00:00:00",
-    ...)
+  Timestamp(x, tz, origin = "1970-01-01 00:00:00", ...)
 }
 \arguments{
   \item{x}{epoch time, character, or anything else

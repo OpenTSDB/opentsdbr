@@ -17,6 +17,7 @@ Collate:
     'opentsdb-package.r'
     'S3-classes.r'
     'timestamps.r'
+    'read.r'
     'tsd_get.r'
     'aggregate.r'
     'trunc.r'
