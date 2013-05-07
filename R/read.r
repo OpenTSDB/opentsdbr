@@ -16,6 +16,7 @@ read.tsdb <- function(file, with_tz="UTC", verbose=FALSE) {
     setnames(records, c("metric", "timestamp", "value", tag_names))
     records <- as.data.frame(records)
     records <- transform(records,
+        metric = factor(metric),
         timestamp = Timestamp(as.numeric(timestamp), tz="UTC"),
         value = as.numeric(value)
     )
@@ -24,7 +25,7 @@ read.tsdb <- function(file, with_tz="UTC", verbose=FALSE) {
             timestamp = lubridate::with_tz(timestamp, with_tz)
         ) 
     }
-    extract_tag_value <- function(x) str_extract(x, "([^=]+)$")
+    extract_tag_value <- function(x) factor(str_extract(x, "([^=]+)$"))
     tag_data <- lapply(records[,tag_names], extract_tag_value)
     records[,tag_names] <- tag_data
     records <- data.table(records, key=c("timestamp", "metric", tag_names))
