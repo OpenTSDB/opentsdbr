@@ -5,5 +5,5 @@
 #' @param	n 		interval length, in seconds
 #' @export
 trunc_seconds <- function(n) {
-	function(x) x - as.numeric(x) %% n
+	function(x) as.POSIXct(x - as.numeric(x) %% n)
 }
