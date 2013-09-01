@@ -25,7 +25,7 @@ Timestamp <- function(x, tz, origin="1970-01-01 00:00:00", ...) {
     } else {
         timestamp <- as.POSIXct(x, tz=tz)
     }
-    class(timestamp) <- c('Timestamp', class(timestamp))
+    class(timestamp) <- c(class(timestamp), 'Timestamp')
     return(timestamp)
 }
 
