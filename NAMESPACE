@@ -1,5 +1,4 @@
 export(Timestamp)
-export(aggregate.tsdb)
 export(read.tsdb)
 export(trunc_seconds)
 export(tsd_get)

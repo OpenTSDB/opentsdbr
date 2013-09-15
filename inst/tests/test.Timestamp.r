@@ -1,6 +1,6 @@
 context('Timestamp')
 
-local_tz <- Sys.timezone()
+local_tz <- "PST8PDT"
 
 from_epoch <- as.POSIXct(1359762161, tz="UTC", origin="1970-01-01")
 from_isodate <- ISOdate(2013, 02, 01, 15, 42, 41, tz=local_tz)
@@ -23,18 +23,16 @@ test_that("convert Timestamp to numeric", {
 
 test_that("format Timestamp created from numeric", {
     t1 <- Timestamp(z, tz="UTC")
-    expect_equal(format(t1), "2013-02-01 15:42:41 PST")
-    expect_equal(format(t1, tz="UTC"), "2013-02-01 23:42:41 UTC")
+    expect_equal(format(t1, usetz=TRUE), "2013-02-01 23:42:41 UTC")
     expect_equal(format_iso8601(t1), "2013-02-01T15:42:41-0800")
-    expect_equal(format_iso8601(t1, tz="UTC"), "2013-02-01T23:42:41+0000")
-    expect_equal(format_tsdb(t1), "2013/02/01-15:42:41")
+    expect_equal(format_local(t1), "2013/02/01-15:42:41")
 })
 
 test_that("format Timestamp created from ISOdate() result", {
     t1 <- Timestamp(z, tz="UTC")
     t2 <- Timestamp(from_isodate)
     expect_equal(attr(t2, "tzone"), local_tz)
-    expect_equal(format(t2), format(t1))
+    expect_equal(format(with_tz(t2, "UTC")), format(t1))
     expect_equal(format(t2, tz="UTC"), format(t1, tz="UTC"))
     expect_equal(format_iso8601(t2), format_iso8601(t1))
 })

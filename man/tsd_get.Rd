@@ -2,7 +2,7 @@
 \alias{tsd_get}
 \title{Query a Time Series Daemon (TSD)}
 \usage{
-  tsd_get(metric, start, end, tags, agg = "avg",
+  tsd_get(metric, interval, tags = NULL, agg = "avg",
     rate = FALSE, downsample = NULL,
     hostname = "localhost", port = 4242, verbose = FALSE,
     trim = FALSE, ...)
@@ -10,9 +10,7 @@
 \arguments{
   \item{metric}{character string}
 
-  \item{start}{POSIXt or subclass}
-
-  \item{end}{POSIXt or subclass}
+  \item{interval}{see \link{lubridate::interval}}
 
   \item{tags}{character vector}
 
@@ -33,7 +31,7 @@
   \item{...}{further arguments}
 }
 \value{
-  a data.frame
+  data.table keyed by "timestamp"
 }
 \description{
   Query a Time Series Daemon (TSD)

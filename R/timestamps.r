@@ -33,7 +33,7 @@ format_iso8601 <- function(x, tz="", ...) {
     format.POSIXct(x, format="%Y-%m-%dT%H:%M:%S%z", tz=tz, usetz=FALSE)
 }
 
-format_tsdb <- function(x, tz="", usetz=FALSE, ...) {
+format_local <- function(x, tz="", usetz=FALSE, ...) {
     format.POSIXct(x, format="%Y/%m/%d-%H:%M:%S", tz=tz, usetz=FALSE)
 }
 

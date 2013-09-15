@@ -1,8 +1,7 @@
 #' Query a Time Series Daemon (TSD)
 #'
 #' @param   metric      character string
-#' @param   start       POSIXt or subclass
-#' @param   end         POSIXt or subclass
+#' @param   interval    see \link{lubridate::interval}
 #' @param   tags        character vector
 #' @param   agg         character string ("sum" or "avg")
 #' @param   rate        logical
@@ -12,13 +11,14 @@
 #' @param   verbose     logical
 #' @param   trim        logical
 #' @param   ...         further arguments
-#' @return              a data.frame
+#' 
+#' @return              data.table keyed by "timestamp"
+#' 
 #' @export
 tsd_get <- function(
     metric,
-    start,
-    end,
-    tags,
+    interval,
+    tags = NULL,
     agg = "avg",
     rate = FALSE,
     downsample = NULL,
@@ -29,12 +29,10 @@ tsd_get <- function(
     ...
 ) { 
     require(data.table)
-    txt <- tsd_get_ascii(metric, start, end, tags, agg, rate, downsample, hostname, port, verbose)
-    # Write to temporary file, then read back (workaround for bug in fread())
-    tempfn <- tempfile()
-    cat(txt, file=tempfn)
-    data <- read.tsdb(tempfn, verbose=verbose)
-    file.remove(tempfn)
+    require(lubridate)
+    stopifnot(is.interval(interval))
+    txt <- tsd_get_ascii(metric, interval, tags, agg, rate, downsample, hostname, port, verbose)
+    data <- parse_ascii(txt)
     if (trim) {
         data <- subset(data, timestamp >= start) # trim excess returned by OpenTSDB
         if (!missing(end)) 
@@ -43,11 +41,21 @@ tsd_get <- function(
     return(as.tsdb(data))
 }
 
+parse_ascii <- function (
+  txt
+) {
+  # Write to temporary file, then read back (workaround for bug in fread())
+  tempfn <- tempfile()
+  cat(txt, file=tempfn)
+  data <- read.tsdb(tempfn, verbose=verbose)
+  file.remove(tempfn)
+  return(data)
+}
+
 tsd_get_ascii <- function(
     metric,
-    start,
-    end,
-    tags,
+    interval,
+    tags = NULL,
     agg = "avg",
     rate = FALSE,
     downsample = NULL,
@@ -57,7 +65,7 @@ tsd_get_ascii <- function(
     ...
 ) { 
     require(httr)
-    params <- tsd_query_params(metric, start, end, tags, agg, rate, downsample)
+    params <- tsd_query_params(metric, interval, tags, agg, rate, downsample)
     url <- sprintf("http://%s:%s/q", hostname, port)
     elapsed <- system.time(response <- GET(url, query=params))[3]
     if (verbose) {
@@ -75,9 +83,8 @@ tsd_get_ascii <- function(
 
 tsd_query_params <- function(
     metric,
-    start,
-    end,
-    tags,
+    interval,
+    tags = NULL,
     agg = "avg",
     rate = FALSE,
     downsample = NULL,
@@ -91,12 +98,14 @@ tsd_query_params <- function(
         m_parts <- c(m_parts, "rate")
     m_parts <- c(m_parts, metric)
     m <- paste(m_parts, collapse=":")
-    if (!missing(tags)) {
+    if (!is.null(tags)) {
         m <- str_c(m, "{", str_c(apply(cbind(names(tags), tags), 1, str_c, collapse="="), collapse=","), "}")
     }
-    params <- list(start=format_tsdb(Timestamp(start)), m=m)
+    start <- interval@start
+    end <- interval@start + interval@.Data
+    params <- list(start=format_local(Timestamp(start)), m=m)
     if (!missing(end)) {
-        params <- c(params, end=format_tsdb(Timestamp(end)))
+        params <- c(params, end=format_local(Timestamp(end)))
     }
     params <- c(params, ascii="")
     return(params)
