@@ -31,3 +31,54 @@ read.tsdb <- function(file, with_tz="UTC", verbose=FALSE) {
     records <- data.table(records, key=c("timestamp", "metric", tag_names))
     return(as.tsdb(records))
 }
+
+#' read.tsdb_json
+#' 
+#' Reads a file in OpenTSDB ASCII format. The returned object inherits from data.table.
+#'
+#' @param file      file (must be compatible with data.table::fread)
+#' @param verbose   logical
+#'
+#' @export
+read.tsdb_json <- function(file, with_tz="UTC", verbose=FALSE) {
+  require(lubridate)
+  require(stringr)
+  require(data.table)
+  require(rjson)
+
+  result_df <- NULL
+
+  docs <- fromJSON(file=file, method='C')
+  for (series_index in 1:length(docs)) {
+    doc <- docs[[series_index]]
+
+    col_names <- c('metric', 'timestamp', 'value')
+    col_types <- c('character', 'double', 'numeric')
+
+    tag_keys <- names(doc$tags)
+    tag_vals <- c()
+    for (i in 1:length(tag_keys)) {
+      tag_key <- tag_keys[[i]]
+      tag_vals <- c(tag_vals, doc$tags[[i]])
+      col_names <- c(col_names, tag_key)
+      col_types <- c(col_types, 'character')
+    }
+
+    if (is.null(result_df)) {
+      result_df <- read.table(text = "", colClasses = col_types, col.names = col_names)
+    }
+
+    timestamps <- names(doc$dps)
+    for (i in 1:length(timestamps)) {
+      timestamp = timestamps[[i]]
+      value = doc$dps[timestamp]
+      result_df[nrow(result_df) + 1,] <- c(doc$metric, timestamp, value, tag_vals)
+    }
+  }
+
+  result_df <- transform(result_df, timestamp = Timestamp(as.numeric(timestamp), tz="UTC"), value = as.numeric(value))
+  if (with_tz != "UTC") {
+    result_df <- transform(result_df, timestamp = lubridate::with_tz(timestamp, with_tz)) 
+  }
+  return(as.tsdb(result_df))
+}
