@@ -49,6 +49,11 @@ read.tsdb_json <- function(file, with_tz="UTC", verbose=FALSE) {
   result_df <- NULL
 
   docs <- fromJSON(file=file, method='C')
+  if (length(docs) <= 0) {
+    warning("The response doesn't have time series data. Please check the '", file, "' file.")
+    stop()
+  }
+
   for (series_index in 1:length(docs)) {
     doc <- docs[[series_index]]
 
@@ -57,11 +62,13 @@ read.tsdb_json <- function(file, with_tz="UTC", verbose=FALSE) {
 
     tag_keys <- names(doc$tags)
     tag_vals <- c()
-    for (i in 1:length(tag_keys)) {
-      tag_key <- tag_keys[[i]]
-      tag_vals <- c(tag_vals, doc$tags[[i]])
-      col_names <- c(col_names, tag_key)
-      col_types <- c(col_types, 'character')
+    if (length(tag_keys) > 0) {
+      for (i in 1:length(tag_keys)) {
+        tag_key <- tag_keys[[i]]
+        tag_vals <- c(tag_vals, doc$tags[[i]])
+        col_names <- c(col_names, tag_key)
+        col_types <- c(col_types, 'character')
+      }
     }
 
     if (is.null(result_df)) {

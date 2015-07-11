@@ -20,7 +20,7 @@ Example usage
     library(opentsdbr)
     
     metric <- "SHT15_temp_Celsius"
-    start <- ISOdate(2013, 02, 02, 00, tz="America/Los_Angeles")
+    start <- interval(ymd_hms("2013-02-02 00:00:00"), ymd_hms("2013-02-02 23:59:59"), tz="America/Los_Angeles")
     
     # Query the TSD (defaults to localhost:4242)
     # Optional: pass verbose=TRUE to see url and timings
@@ -37,7 +37,10 @@ Example usage
     242: SHT15_temp_Celsius 2013-02-03 16:27:39 31.02158 UHall575AB
     243: SHT15_temp_Celsius 2013-02-03 16:37:41 30.87239 UHall575AB
     244: SHT15_temp_Celsius 2013-02-03 16:45:27 31.01333 UHall575AB
-    
+
+    # Query the TSD through the opentsdb v2 endpoint which means that now it supports non-ascii tags such as UTF-8.
+    (result <- tsd_req(metric, start, tags=c(site="*"), downsample="10m-avg"))
+
     # Convert to irregular time series, filter, and plot
     library(zoo)
     z <- with(result, zoo(value, timestamp))
