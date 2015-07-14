@@ -92,11 +92,10 @@ tsd_query_body <- function(
   ...
 ) {
   require(stringr)
-  start <- as.numeric(interval@start) * 1000
-  params <- c('{', '"start":', start)
+  params <- c('{', '"start":', as.numeric(interval@start), '000')
   end <- interval@start + interval@.Data
   if (!missing(end)) {
-    params <- c(params, ',"end":', as.numeric(end) * 1000)
+    params <- c(params, ',"end":', as.numeric(end), '000')
   }
   params <- c(params, ',"queries":[{')
   params <- c(params, '"metric":"', metric, '"')
