@@ -26,13 +26,14 @@ tsd_req <- function(
   port = 4242, 
   verbose = FALSE,
   trim = FALSE,
+  tz = 'UTC',
   ...
 ) { 
   require(data.table)
   require(lubridate)
   stopifnot(is.interval(interval))
   txt <- tsd_request(metric, interval, tags, agg, rate, downsample, hostname, port, verbose)
-  data <- parse_json_response(txt)
+  data <- parse_json_response(txt, tz = tz)
   if (trim) {
     data <- subset(data, timestamp >= start) # trim excess returned by OpenTSDB
     if (!missing(end)) 
@@ -42,12 +43,13 @@ tsd_req <- function(
 }
 
 parse_json_response <- function (
-  txt
+  txt,
+  tz = 'UTC'
 ) {
   # Write to temporary file, then read back (workaround for bug in fread())
   tempfn <- tempfile()
   cat(txt, file=tempfn)
-  data <- read.tsdb_json(tempfn, verbose=verbose)
+  data <- read.tsdb_json(tempfn, verbose=verbose, with_tz=tz)
   file.remove(tempfn)
   return(data)
 }
