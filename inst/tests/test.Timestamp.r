@@ -22,10 +22,13 @@ test_that("convert Timestamp to numeric", {
 })
 
 test_that("format Timestamp created from numeric", {
+    tz <- Sys.getenv('TZ')
+    Sys.setenv(TZ='America/Los_Angeles')
     t1 <- Timestamp(z, tz="UTC")
     expect_equal(format(t1, usetz=TRUE), "2013-02-01 23:42:41 UTC")
     expect_equal(format_iso8601(t1), "2013-02-01T15:42:41-0800")
     expect_equal(format_local(t1), "2013/02/01-15:42:41")
+    Sys.setenv(TZ=tz)
 })
 
 test_that("format Timestamp created from ISOdate() result", {

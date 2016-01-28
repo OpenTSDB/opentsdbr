@@ -8,6 +8,7 @@ Description: Read-only interface to OpenTSDB
 Depends:
     stringr,
     httr,
+    rjson,
     lubridate,
     data.table (>= 1.8.7)
 Suggests:
@@ -19,5 +20,6 @@ Collate:
     'timestamps.r'
     'read.r'
     'tsd_get.r'
+    'tsd_req.r'
     'aggregate.r'
     'trunc.r'
