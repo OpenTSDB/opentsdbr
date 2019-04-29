@@ -8,11 +8,10 @@ Seeking comment!
 Installation
 ------------
 
-Install directly from GitHub using [devtools]:
+Install directly from GitHub using [remotes]:
 
-    if (!require("devtools")) install.packages("devtools")
-    library("devtools")
-    install_github("opentsdbr", "holstius")
+    if (!require("remotes")) install.packages("remotes")
+    remotes::install_github("OpenTSDB/opentsdbr")
 
 Example usage
 -------------
@@ -50,4 +49,4 @@ Example usage
 [R]: http://r-project.org "R"
 [OpenTSDB]: http://www.opentsdb.net "OpenTSDB"
 [BEACON]: http://beacon.berkeley.edu "Beacon"
-[devtools]: https://github.com/hadley/devtools "devtools"
+[remotes]: https://github.com/r-lib/remotes "remotes"
